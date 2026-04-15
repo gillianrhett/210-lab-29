@@ -1,0 +1,12 @@
+Proposal
+Project Overview:
+My project creates a simulation of managing supplies, books, and patrons for a library.
+
+Implementation:
+For each element in the map, items in its three lists will be added or removed based on algorithms, which will execute for at least 25 iterations.
+Each map item's key is a string containing the city the library is in, or the name of the library. Each map item's value is an array of the three lists.
+  List 1: Books. The text file contains all the books in the system (there can be multiple copies of each title), and the list of books is populated and added to from this text file. Books are removed from a library's list when they are checked out. Most of them get returned after 3 weeks, but there is a small probability of a book not being returned. There also is a small probability of another copy of a book being acquired.
+  List 2: Consumables. Things that get used up and need to be reordered at a somewhat predictable rate, depending on the number of people. This includes paper towels, pencils, and lightbulbs.
+  List 3: People. The people who have a library card for that library. People may leave or join every week. The total number of people at any given time will influence how fast consumables get used up and how likely it is to have someone check out a book, not return a checked out book, or donate a book (these actions are not tied to specific people in this simulation).
+
+Simulated events: the time increment will be weeks, and this program will simulate three scenarios lasting 20 weeks each. 1. A normal period where nothing unusual happens. 2. After marketing efforts, the rate of new people joining increases. 3. After more marketing efforts, people become more likely to return their books and to donate books.
