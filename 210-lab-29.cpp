@@ -1,6 +1,14 @@
 // Include headers for iostream, fstream, map, list, cstdlib (for rand), any others I need
+#include <iostream>
+#include <fstream>
+#include <map>
+#include <list>
+#include <cstdlib>
 
-// Constants: Checkout_Base_Rate, P_noreturn, P_donate, Consumed_Base_Rate, ReplaceConsumables_Rate
+using namespace std;
+
+// Constants: Checkout_Base_Rate, Noreturn_Rate, Donate_Rate, Consumed_Base_Rate, ReplaceConsumables_Rate
+const double Checkout_Base_Rate = 15.0, Noreturn_Rate = 1.0, Donate_Rate = 1.0, Consumed_Base_Rate = 5.0, ReplaceConsumables_Rate = 5.0;
 
 // Define a function to simulate one week for one library
     // Parameters: map&, library (key), checkout_rate_modifier, p_noreturn_modifier, p_donate_modifier, consumed_rate_modifier
@@ -20,6 +28,7 @@
 // ---
 
 // Define main function
+int main() {
     // Initialize a map to store the information about each of three libraries
 
     // Open an external file to read the book titles into each library - all libraries start with one copy of every book
@@ -48,5 +57,7 @@
     // Simulate what happens after the rate of new people joining increases
     //    this will affect the checkout rate and rate of using up consumables
     // Simulate what happens when people become more likely to return their books and to donate books
-        
+
+    return 0;
+}        
 // End of main function
