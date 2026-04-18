@@ -46,6 +46,32 @@ int main() {
     // the starting lists for all three libraries will be the same.
     // I used ChatGPT to generate the lists in the three text files
     ifstream inFile;
+    string in_string;
+    // Read data from files and populate map
+    // array<list<string>, 3> test; // TESTING
+    string filename = "books.txt";
+    inFile.open(filename);
+    // check for file error
+    if(!inFile.is_open()) {
+        cout << "Error: file \"" << filename << "\" not found.";
+        return 1;
+    }
+    while (!inFile.eof()){ 
+        getline(inFile, in_string);
+        Libraries["Concord"].at(0).push_back(in_string); 
+    }
+    inFile.seekg(0);
+    while (!inFile.eof()){ 
+        getline(inFile, in_string);
+        Libraries["Walnut Creek"].at(0).push_back(in_string); 
+    }
+    inFile.seekg(0);
+    while (!inFile.eof()){ 
+        getline(inFile, in_string);
+        Libraries["Pleasant Hill"].at(0).push_back(in_string); 
+    }
+    // I thought I could make this simpler with a range-based for loop for the three libraries but I couldn't get it to work (yet)
+    /*
     array<string, 3> files = {"books.txt", "consumables.txt", "people.txt"};
     int list_num = 0;
     string in_string;
@@ -59,6 +85,7 @@ int main() {
             return 1;
         }
         // go through the file and add all the items to each library's list for that type of item
+        Libraries["Concord"].at(0).push_back("test1");
         for (auto pair : Libraries) {
             inFile.seekg(0); // go to the beginning for the next library
             while (!inFile.eof()){ 
@@ -78,22 +105,23 @@ int main() {
         }
         cout << "size of list: " << test.at(list_num).size() << " last item in test: " << test.at(list_num).back() << endl;
          END TESTING - this works
-         */
 
         inFile.close(); // close the file
         ++list_num;
     }
-    /*
+
     Libraries["Concord"].at(0).push_back("test1"); // testing - this works
     Libraries["Concord"].at(0).push_back("test2"); // testing - this works
     for (const string book : Libraries["Concord"].at(0)) // testing - this works
             cout << book << endl;
-    */
 
+    */
     // Begin a time-based simulation of a normal time period of the library activities
     // For 25 time intervals
     // Iterate through each library in the map
     //weekly_changes(Libraries, "Concord", 1, 1, 1, 1); // testing
+    display_books(Libraries, "Concord"); // testing
+    change_books(Libraries, "Concord", 1.0, 1.0);
     display_books(Libraries, "Concord"); // testing
         // Wait or pause briefly to simulate the passage of time between intervals
 
@@ -114,9 +142,7 @@ void change_books(map<string, array<list<string>,3>>& m, string lib_name, double
             num_books = m[lib_name].at(0).size(); // make sure we don't try to remove more books than we have
     for (int i = 0; !m.empty() && i < num_books && num_books > 0; ++i) {
     // each iteration of this loop removes one random book
-        cout << num_books << endl; // testing
-            rand_index = rand() % num_books; // will be index number of book that gets checked out
-        cout << rand_index << endl; // testing
+        rand_index = rand() % num_books; // will be index number of book that gets checked out
         list<string>::iterator li = m[lib_name].at(0).begin();
         for(int j = 0; j < rand_index; ++j)
         // traverse the list to get to the book at index rand_index
@@ -150,4 +176,5 @@ void display_books(map<string, array<list<string>,3>>& m, string lib_name) {
             cout << endl;
         ++i;
     }
+    cout << "Total number of books: " << m[lib_name].at(0).size() << endl;
 }
