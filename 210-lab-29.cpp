@@ -1,10 +1,11 @@
 // Include headers for iostream, fstream, map, list, cstdlib (for rand), any others I need
 #include <iostream>
-#include <fstream>
-#include <map>
-#include <list>
-#include <array>
-#include <cstdlib>
+#include <fstream> // for populating the lists
+#include <string> // for getline
+#include <map> // for storing the libraries and their data
+#include <list> // for storing each library's books, consumables, and lists
+#include <array> // for storing each library's three lists
+#include <cstdlib> // for random numbers
 
 using namespace std;
 
@@ -39,9 +40,22 @@ int main() {
     Libraries.emplace("Pleasant Hill");
     Libraries.emplace("Walnut Creek");
 
-    // Open an external file to read the book titles into each library - all libraries start with one copy of every book
-        // If file does not open, print an error and exit
-    
+    // the starting lists for all three libraries will be the same.
+    // I used ChatGPT to generate the lists in the three text files
+    ifstream inFile;
+    string book;
+    inFile.open("books.txt");
+    // TODO check for file error
+    // go through the file and add all the book titles to each library's books list
+    for(auto pair : Libraries) {
+        while (!inFile.eof()){ 
+            getline(inFile, book);
+            pair.second.at(1).push_back(book);
+        }
+    }    
+    inFile.close(); // close the file
+
+
     // Read data from file and populate map
         // For each library, populate its Consumables and People lists by randomly selecting names from files.
         // opening file error checking like above
