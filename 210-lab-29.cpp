@@ -21,7 +21,7 @@ void weekly_changes(map<string, array<list<string>,3>>&, string, double, double,
 // ---
 // Define a function to display one library's books
     // Parameters: map&, library
-
+void display_books(map<string, array<list<string>,3>>&, string);
 // Define a function to display one library's consumables
     // Parameters: map&, library
 
@@ -35,10 +35,13 @@ int main() {
     // Initialize a map to store the information about each of three libraries
     map<string, array<list<string>, 3>> Libraries;
     // the first list is books, the second list is consumables, and the third list is people
+    Libraries.emplace("Concord");
+    Libraries.emplace("Pleasant Hill");
+    Libraries.emplace("Walnut Creek");
 
     // Open an external file to read the book titles into each library - all libraries start with one copy of every book
         // If file does not open, print an error and exit
-
+    
     // Read data from file and populate map
         // For each library, populate its Consumables and People lists by randomly selecting names from files.
         // opening file error checking like above
@@ -49,7 +52,8 @@ int main() {
     // Begin a time-based simulation of a normal time period of the library activities
     // For 25 time intervals
     // Iterate through each library in the map
-
+    weekly_changes(Libraries, "San Ramon", 1, 1, 1, 1); // testing
+    display_books(Libraries, "San Ramon");
         // Wait or pause briefly to simulate the passage of time between intervals
 
     // Simulate what happens after the rate of new people joining increases
@@ -75,6 +79,7 @@ void weekly_changes(map<string, array<list<string>,3>>& m, string lib_name, doub
         for(int j = 0; j < rand_index; ++j)
         // traverse the list to get to the book at index rand_index
             advance(li, 1);
+        cout << "Checked out book " << *li << endl;
         m[lib_name].at(1).erase(li); // remove the book at index rand_index
     }
     // 2. books get returned or donated (this version will not keep track of which specific books 
@@ -85,4 +90,15 @@ void weekly_changes(map<string, array<list<string>,3>>& m, string lib_name, doub
     // 5. new people get library cards
     // 6. people move away and are removed from the People list
     // Print the changes for this interval
+}
+
+void display_books(map<string, array<list<string>,3>>& m, string lib_name) {
+// display all the books in the given library
+    int i = 1;
+    for(string book : m[lib_name].at(1)) {
+        cout << book << ", ";
+        if(i % 10 == 0) // show 10 book names per line
+            cout << endl;
+        ++i;
+    }
 }
