@@ -10,6 +10,9 @@
 
 using namespace std;
 
+// Enumeration for the 3 lists
+enum ListNum {BOOKS = 0, CONSUMABLES = 1, PEOPLE = 2};
+
 // Constants:
 const double Checkout_Base_Rate = 15.0, Return_Rate = 15.0, Donate_Rate = 1.0, Consumed_Base_Rate = 5.0, ReplaceConsumables_Rate = 5.0, People_Base_Rate = 10.0;
 
@@ -48,30 +51,33 @@ int main() {
 
     // the starting lists for all three libraries will be the same.
     // I used ChatGPT to generate the lists in the three text files
-    if(!read_from_file(Libraries, "Concord", "books.txt", 0))
+    if(!read_from_file(Libraries, "Concord", "books.txt", BOOKS))
         return 1;
-    if(!read_from_file(Libraries, "Walnut Creek", "books.txt", 0))
+    if(!read_from_file(Libraries, "Walnut Creek", "books.txt", BOOKS))
         return 1;
-    if(!read_from_file(Libraries, "Pleasant Hill", "books.txt", 0))
+    if(!read_from_file(Libraries, "Pleasant Hill", "books.txt", BOOKS))
         return 1;
-    if(!read_from_file(Libraries, "Concord", "consumables.txt", 1))
+    if(!read_from_file(Libraries, "Concord", "consumables.txt", CONSUMABLES))
         return 1;
-    if(!read_from_file(Libraries, "Walnut Creek", "consumables.txt", 1))
+    if(!read_from_file(Libraries, "Walnut Creek", "consumables.txt", CONSUMABLES))
         return 1;
-    if(!read_from_file(Libraries, "Pleasant Hill", "consumables.txt", 1))
+    if(!read_from_file(Libraries, "Pleasant Hill", "consumables.txt", CONSUMABLES))
         return 1;
-    if(!read_from_file(Libraries, "Concord", "consumables.txt", 2))
+    if(!read_from_file(Libraries, "Concord", "consumables.txt", PEOPLE))
         return 1;
-    if(!read_from_file(Libraries, "Walnut Creek", "consumables.txt", 2))
+    if(!read_from_file(Libraries, "Walnut Creek", "consumables.txt", PEOPLE))
         return 1;
-    if(!read_from_file(Libraries, "Pleasant Hill", "consumables.txt", 2))
+    if(!read_from_file(Libraries, "Pleasant Hill", "consumables.txt", PEOPLE))
         return 1;
 
     
     // Begin a time-based simulation of a normal time period of the library activities
     // For 25 time intervals
     // Iterate through each library in the map
-    change_books(Libraries, "Concord", 1.0, 1.0, 1.0);
+    for (auto pair : Libraries) {
+        change_books(Libraries, pair.first, 1.0, 1.0, 1.0);
+        change_consumables(Libraries, pair.first, 1.0);
+    }
     //display_books(Libraries, "Concord"); // testing
         // Wait or pause briefly to simulate the passage of time between intervals
 
@@ -88,17 +94,18 @@ void change_books(map<string, array<list<string>,3>>& m, string lib_name, double
     int rand_index; // will store random numbers
     // 1. books get checked out
     int num_books = static_cast<int>(round(Checkout_Base_Rate * checkout_rate_modifier));
-    if(num_books > m[lib_name].at(0).size())
-            num_books = m[lib_name].at(0).size(); // make sure we don't try to remove more books than we have
+    if(num_books > m[lib_name].at(BOOKS).size())
+            num_books = m[lib_name].at(BOOKS).size(); // make sure we don't try to remove more books than we have
+    cout << lib_name << ":" << endl;
     for (int i = 0; !m.empty() && i < num_books && num_books > 0; ++i) {
     // each iteration of this loop removes one random book
         rand_index = rand() % num_books; // will be index number of book that gets checked out
-        list<string>::iterator li = m[lib_name].at(0).begin();
+        list<string>::iterator li = m[lib_name].at(BOOKS).begin();
         for(int j = 0; j < rand_index; ++j)
         // traverse the list to get to the book at index rand_index
             advance(li, 1);
-        cout << "Checked out book " << *li << endl;
-        m[lib_name].at(0).erase(li); // remove the book at index rand_index
+        cout << "\tChecked out book " << *li << endl;
+        m[lib_name].at(BOOKS).erase(li); // remove the book at index rand_index
     }
     // 2. books get returned or donated (this version will not keep track of which specific books 
     //    were checked out; it will just randomly add books from the file)
@@ -108,9 +115,9 @@ void change_books(map<string, array<list<string>,3>>& m, string lib_name, double
     for (int i = 0; i < num_books && num_books > 0; ++i) {
     // each iteration of this loop adds one random book
         rand_index = rand() % num_books; // will be index number of book that gets checked out
-        list<string>::iterator li = m[lib_name].at(0).begin();
-        cout << "Book " << book_title << " returned" << endl;
-        m[lib_name].at(0).push_back(book_title); // remove the book at index rand_index
+        list<string>::iterator li = m[lib_name].at(BOOKS).begin();
+        cout << "\tBook " << book_title << " returned" << endl;
+        m[lib_name].at(BOOKS).push_back(book_title); // remove the book at index rand_index
     }
     // books donated:
     num_books = (Donate_Rate * donate_rate_modifier);
@@ -118,9 +125,9 @@ void change_books(map<string, array<list<string>,3>>& m, string lib_name, double
     for (int i = 0; i < num_books && num_books > 0; ++i) {
     // each iteration of this loop adds one random book
         rand_index = rand() % num_books; // will be index number of book that gets checked out
-        list<string>::iterator li = m[lib_name].at(0).begin();
-        cout << "New book " << book_title << " donated" << endl;
-        m[lib_name].at(0).push_back(book_title); // remove the book at index rand_index
+        list<string>::iterator li = m[lib_name].at(BOOKS).begin();
+        cout << "\tNew book " << book_title << " donated" << endl;
+        m[lib_name].at(BOOKS).push_back(book_title); // remove the book at index rand_index
     }
 }
 
@@ -128,20 +135,28 @@ void change_consumables(map<string, array<list<string>,3>>& m, string lib_name, 
     // 3. consumables get used up
     int rand_index;
     int num_consumables = static_cast<int>(round(Consumed_Base_Rate * consumed_rate_modifier));
-    if(num_consumables > m[lib_name].at(1).size())
-            num_consumables = m[lib_name].at(1).size(); // make sure we don't try to remove more books than we have
+    if(num_consumables > m[lib_name].at(CONSUMABLES).size())
+            num_consumables = m[lib_name].at(CONSUMABLES).size(); // make sure we don't try to remove more books than we have
     for (int i = 0; !m.empty() && i < num_consumables && num_consumables > 0; ++i) {
-    // each iteration of this loop removes one random book
+    // each iteration of this loop removes one random consumable
         rand_index = rand() % num_consumables; // will be index number of book that gets checked out
-        list<string>::iterator li = m[lib_name].at(1).begin();
+        list<string>::iterator li = m[lib_name].at(CONSUMABLES).begin();
         for(int j = 0; j < rand_index; ++j)
-        // traverse the list to get to the book at index rand_index
+        // traverse the list to get to the consumable at index rand_index
             advance(li, 1);
-        cout << "Used up " << *li << endl;
-        m[lib_name].at(1).erase(li); // remove the book at index rand_index
+        cout << "\tUsed up " << *li << endl;
+        m[lib_name].at(CONSUMABLES).erase(li); // remove the consumable at index rand_index
     }
     // 4. more consumables get bought
     num_consumables = ReplaceConsumables_Rate; // I haven't included changing this - they have a limited budget
+    for (int i = 0; i < num_consumables && num_consumables > 0; ++i) {
+    // each iteration of this loop adds one random book
+        rand_index = rand() % num_consumables; // will be index number of book that gets checked out
+        list<string>::iterator li = m[lib_name].at(CONSUMABLES).begin();
+        string consumable_name = "test_c";
+        cout << "\tConsumable " << consumable_name << " bought" << endl;
+        m[lib_name].at(CONSUMABLES).push_back(consumable_name); // remove the book at index rand_index
+    }
 }
 
 void change_people(map<string, array<list<string>,3>>& m, string lib_name, double joining_modifier, double leaving_modifier) {
