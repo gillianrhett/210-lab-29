@@ -63,11 +63,11 @@ int main() {
         return 1;
     if(!read_from_file(Libraries, "Pleasant Hill", "consumables.txt", CONSUMABLES))
         return 1;
-    if(!read_from_file(Libraries, "Concord", "consumables.txt", PEOPLE))
+    if(!read_from_file(Libraries, "Concord", "people.txt", PEOPLE))
         return 1;
-    if(!read_from_file(Libraries, "Walnut Creek", "consumables.txt", PEOPLE))
+    if(!read_from_file(Libraries, "Walnut Creek", "people.txt", PEOPLE))
         return 1;
-    if(!read_from_file(Libraries, "Pleasant Hill", "consumables.txt", PEOPLE))
+    if(!read_from_file(Libraries, "Pleasant Hill", "people.txt", PEOPLE))
         return 1;
 
     
@@ -77,6 +77,7 @@ int main() {
     for (auto pair : Libraries) {
         change_books(Libraries, pair.first, 1.0, 1.0, 1.0);
         change_consumables(Libraries, pair.first, 1.0);
+        change_people(Libraries, pair.first, 1.0, 1.0);
     }
     //display_books(Libraries, "Concord"); // testing
         // Wait or pause briefly to simulate the passage of time between intervals
@@ -99,7 +100,7 @@ void change_books(map<string, array<list<string>,3>>& m, string lib_name, double
     cout << lib_name << ":" << endl;
     for (int i = 0; !m.empty() && i < num_books && num_books > 0; ++i) {
     // each iteration of this loop removes one random book
-        rand_index = rand() % num_books; // will be index number of book that gets checked out
+        rand_index = rand() % m[lib_name].at(BOOKS).size(); // will be index number of book that gets checked out
         list<string>::iterator li = m[lib_name].at(BOOKS).begin();
         for(int j = 0; j < rand_index; ++j)
         // traverse the list to get to the book at index rand_index
@@ -114,7 +115,7 @@ void change_books(map<string, array<list<string>,3>>& m, string lib_name, double
     string book_title = "test R"; // TODO I'll need to store the book names in the program so I can grab random new ones
     for (int i = 0; i < num_books && num_books > 0; ++i) {
     // each iteration of this loop adds one random book
-        rand_index = rand() % num_books; // will be index number of book that gets checked out
+        rand_index = rand() % m[lib_name].at(BOOKS).size(); // will be index number of book that gets checked out
         list<string>::iterator li = m[lib_name].at(BOOKS).begin();
         cout << "\tBook " << book_title << " returned" << endl;
         m[lib_name].at(BOOKS).push_back(book_title); // remove the book at index rand_index
@@ -124,7 +125,6 @@ void change_books(map<string, array<list<string>,3>>& m, string lib_name, double
     book_title = "test D"; // TODO I'll need to store the book names in the program so I can grab random new ones
     for (int i = 0; i < num_books && num_books > 0; ++i) {
     // each iteration of this loop adds one random book
-        rand_index = rand() % num_books; // will be index number of book that gets checked out
         list<string>::iterator li = m[lib_name].at(BOOKS).begin();
         cout << "\tNew book " << book_title << " donated" << endl;
         m[lib_name].at(BOOKS).push_back(book_title); // remove the book at index rand_index
@@ -132,6 +132,7 @@ void change_books(map<string, array<list<string>,3>>& m, string lib_name, double
 }
 
 void change_consumables(map<string, array<list<string>,3>>& m, string lib_name, double consumed_rate_modifier) {
+// change the number of consumables (paper towels, pencils, etc.)
     // 3. consumables get used up
     int rand_index;
     int num_consumables = static_cast<int>(round(Consumed_Base_Rate * consumed_rate_modifier));
@@ -139,7 +140,7 @@ void change_consumables(map<string, array<list<string>,3>>& m, string lib_name, 
             num_consumables = m[lib_name].at(CONSUMABLES).size(); // make sure we don't try to remove more books than we have
     for (int i = 0; !m.empty() && i < num_consumables && num_consumables > 0; ++i) {
     // each iteration of this loop removes one random consumable
-        rand_index = rand() % num_consumables; // will be index number of book that gets checked out
+        rand_index = rand() % m[lib_name].at(CONSUMABLES).size(); // will be index number of book that gets checked out
         list<string>::iterator li = m[lib_name].at(CONSUMABLES).begin();
         for(int j = 0; j < rand_index; ++j)
         // traverse the list to get to the consumable at index rand_index
@@ -150,19 +151,41 @@ void change_consumables(map<string, array<list<string>,3>>& m, string lib_name, 
     // 4. more consumables get bought
     num_consumables = ReplaceConsumables_Rate; // I haven't included changing this - they have a limited budget
     for (int i = 0; i < num_consumables && num_consumables > 0; ++i) {
-    // each iteration of this loop adds one random book
-        rand_index = rand() % num_consumables; // will be index number of book that gets checked out
+    // each iteration of this loop adds one random consumable
         list<string>::iterator li = m[lib_name].at(CONSUMABLES).begin();
         string consumable_name = "test_c";
         cout << "\tConsumable " << consumable_name << " bought" << endl;
-        m[lib_name].at(CONSUMABLES).push_back(consumable_name); // remove the book at index rand_index
+        m[lib_name].at(CONSUMABLES).push_back(consumable_name); // remove the consumable at index rand_index
     }
 }
 
 void change_people(map<string, array<list<string>,3>>& m, string lib_name, double joining_modifier, double leaving_modifier) {
+// change the number of people who have library cards
     // 5. new people get library cards
+    int rand_index = 0;
     int num_people = static_cast<int>(round(People_Base_Rate * joining_modifier));
+    string person_name = "test person"; // TODO I'll need to store the book names in the program so I can grab random new ones
+    for (int i = 0; i < num_people && num_people > 0; ++i) {
+    // each iteration of this loop adds one random book
+        rand_index = rand() % m[lib_name].at(PEOPLE).size(); // will be index number of book that gets checked out
+        list<string>::iterator li = m[lib_name].at(PEOPLE).begin();
+        cout << "\t" << person_name << " got a library card" << endl;
+        m[lib_name].at(PEOPLE).push_back(person_name); // remove the book at index rand_index
+    }
     // 6. people move away and are removed from the People list
+    num_people = static_cast<int>(round(People_Base_Rate * leaving_modifier));
+    if(num_people > m[lib_name].at(PEOPLE).size())
+            num_people = m[lib_name].at(PEOPLE).size(); // make sure we don't try to remove more people than we have
+    for (int i = 0; !m.empty() && i < num_people && num_people > 0; ++i) {
+    // each iteration of this loop removes one random person
+        rand_index = rand() % m[lib_name].at(PEOPLE).size(); // will be index number of book that gets checked out
+        list<string>::iterator li = m[lib_name].at(PEOPLE).begin();
+        for(int j = 0; j < rand_index; ++j)
+        // traverse the list to get to the person at index rand_index
+            advance(li, 1);
+        cout << "\t" << *li << " moved away" << endl;
+        m[lib_name].at(PEOPLE).erase(li); // remove the consumable at index rand_index
+    }
 }
 
 bool read_from_file(map<string, array<list<string>,3>>& m, string lib_name, string filename, int list_index) {
