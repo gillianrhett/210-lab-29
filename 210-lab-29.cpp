@@ -19,7 +19,7 @@ const double Checkout_Base_Rate = 15.0, Return_Rate = 15.0, Donate_Rate = 1.0, C
     // return value is void, it just adds and removes items from this library's lists
 //void weekly_changes(map<string, array<list<string>,3>>&, string, double, double, double, double, double, double);
 // this is getting unwieldy; I'm going to split it up into more functions
-void change_books(map<string, array<list<string>,3>>&, string, double, double);
+void change_books(map<string, array<list<string>,3>>&, string, double, double, double);
 
 // I might only need these functions for testing purposes
 // ---
@@ -120,9 +120,9 @@ int main() {
     // For 25 time intervals
     // Iterate through each library in the map
     //weekly_changes(Libraries, "Concord", 1, 1, 1, 1); // testing
-    display_books(Libraries, "Concord"); // testing
-    change_books(Libraries, "Concord", 1.0, 1.0);
-    display_books(Libraries, "Concord"); // testing
+    //display_books(Libraries, "Concord"); // testing
+    change_books(Libraries, "Concord", 1.0, 1.0, 1.0);
+    //display_books(Libraries, "Concord"); // testing
         // Wait or pause briefly to simulate the passage of time between intervals
 
     // Simulate what happens after the rate of new people joining increases
@@ -133,7 +133,7 @@ int main() {
 }        
 // End of main function
 
-void change_books(map<string, array<list<string>,3>>& m, string lib_name, double checkout_rate_modifier, double return_rate_modifier) {
+void change_books(map<string, array<list<string>,3>>& m, string lib_name, double checkout_rate_modifier, double return_rate_modifier, double donate_rate_modifier) {
 // simulate the changes to books, consumables, and people for the given library in one week
     int rand_index; // will store random numbers
     // 1. books get checked out
@@ -150,13 +150,33 @@ void change_books(map<string, array<list<string>,3>>& m, string lib_name, double
         cout << "Checked out book " << *li << endl;
         m[lib_name].at(0).erase(li); // remove the book at index rand_index
     }
+    // 2. books get returned or donated (this version will not keep track of which specific books 
+    //    were checked out; it will just randomly add books from the file)
+    // books returned:
+    num_books = (Return_Rate * return_rate_modifier);
+    string book_title = "test R"; // TODO I'll need to store the book names in the program so I can grab random new ones
+    for (int i = 0; i < num_books && num_books > 0; ++i) {
+    // each iteration of this loop adds one random book
+        rand_index = rand() % num_books; // will be index number of book that gets checked out
+        list<string>::iterator li = m[lib_name].at(0).begin();
+        cout << "Book " << book_title << " returned" << endl;
+        m[lib_name].at(0).push_back(book_title); // remove the book at index rand_index
+    }
+    // books donated:
+    num_books = (Donate_Rate * donate_rate_modifier);
+    book_title = "test D"; // TODO I'll need to store the book names in the program so I can grab random new ones
+    for (int i = 0; i < num_books && num_books > 0; ++i) {
+    // each iteration of this loop adds one random book
+        rand_index = rand() % num_books; // will be index number of book that gets checked out
+        list<string>::iterator li = m[lib_name].at(0).begin();
+        cout << "New book " << book_title << " donated" << endl;
+        m[lib_name].at(0).push_back(book_title); // remove the book at index rand_index
+    }
 }
 
 /* for other change functions:
     params: double donate_rate_modifier, double consumed_rate_modifier, double joining_modifier, double leaving_modifier) {
-    // 2. books get returned or donated (this version will not keep track of which specific books 
-    //    were checked out; it will just randomly add books from the file)
-    num_books += (Return_Rate * return_rate_modifier) + (Donate_Rate * donate_rate_modifier);
+    
     // 3. consumables get used up
     int num_consumables = static_cast<int>(round(Consumed_Base_Rate * consumed_rate_modifier));
     // 4. more consumables get bought
@@ -171,10 +191,12 @@ void display_books(map<string, array<list<string>,3>>& m, string lib_name) {
 // display all the books in the given library
     int i = 1;
     for (string book : m[lib_name].at(0)) {
-        cout << book << ", ";
-        if(i % 10 == 0) // show 10 book names per line
+        cout << book;
+        if (i != m[lib_name].at(0).size()) // if it's not the last book
+            cout << ", ";
+        if(i % 8 == 0) // show 8 book names per line
             cout << endl;
         ++i;
     }
-    cout << "Total number of books: " << m[lib_name].at(0).size() << endl;
+    cout << "\nTotal number of books: " << m[lib_name].at(0).size() << endl;
 }
