@@ -11,7 +11,7 @@
 using namespace std;
 
 // Constants:
-const double Checkout_Base_Rate = 15.0, Return_Rate = 15.0, Donate_Rate = 1.0, Consumed_Base_Rate = 5.0, ReplaceConsumables_Rate = 5.0, People_Base_rate = 10.0;
+const double Checkout_Base_Rate = 15.0, Return_Rate = 15.0, Donate_Rate = 1.0, Consumed_Base_Rate = 5.0, ReplaceConsumables_Rate = 5.0, People_Base_Rate = 10.0;
 
 // Define functionS to simulate one week for one library
     // Parameters: map&, library (key), checkout_rate_modifier, return_rate_modifier, donate_rate_modifier, consumed_rate_modifier
@@ -20,7 +20,10 @@ const double Checkout_Base_Rate = 15.0, Return_Rate = 15.0, Donate_Rate = 1.0, C
 //void weekly_changes(map<string, array<list<string>,3>>&, string, double, double, double, double, double, double);
 // this is getting unwieldy; I'm going to split it up into more functions
 void change_books(map<string, array<list<string>,3>>&, string, double, double, double);
+void change_consumables(map<string, array<list<string>,3>>&, string, double);
+void change_people(map<string, array<list<string>,3>>&, string, double, double);
 
+bool read_from_file(map<string, array<list<string>,3>>&, string, string, int);
 // I might only need these functions for testing purposes
 // ---
 // Define a function to display one library's books
@@ -45,82 +48,29 @@ int main() {
 
     // the starting lists for all three libraries will be the same.
     // I used ChatGPT to generate the lists in the three text files
-    ifstream inFile;
-    string in_string;
-    // Read data from files and populate map
-    // array<list<string>, 3> test; // TESTING
-    string filename = "books.txt";
-    inFile.open(filename);
-    // check for file error
-    if(!inFile.is_open()) {
-        cout << "Error: file \"" << filename << "\" not found.";
+    if(!read_from_file(Libraries, "Concord", "books.txt", 0))
         return 1;
-    }
-    while (!inFile.eof()){ 
-        getline(inFile, in_string);
-        Libraries["Concord"].at(0).push_back(in_string); 
-    }
-    inFile.seekg(0);
-    while (!inFile.eof()){ 
-        getline(inFile, in_string);
-        Libraries["Walnut Creek"].at(0).push_back(in_string); 
-    }
-    inFile.seekg(0);
-    while (!inFile.eof()){ 
-        getline(inFile, in_string);
-        Libraries["Pleasant Hill"].at(0).push_back(in_string); 
-    }
-    // I thought I could make this simpler with a range-based for loop for the three libraries but I couldn't get it to work (yet)
-    /*
-    array<string, 3> files = {"books.txt", "consumables.txt", "people.txt"};
-    int list_num = 0;
-    string in_string;
-    // Read data from files and populate map
-    // array<list<string>, 3> test; // TESTING
-    for (string filename : files) {
-        inFile.open(filename);
-        // check for file error
-        if(!inFile.is_open()) {
-            cout << "Error: file \"" << filename << "\" not found.";
-            return 1;
-        }
-        // go through the file and add all the items to each library's list for that type of item
-        Libraries["Concord"].at(0).push_back("test1");
-        for (auto pair : Libraries) {
-            inFile.seekg(0); // go to the beginning for the next library
-            while (!inFile.eof()){ 
-                getline(inFile, in_string);
-                //cout << in_string << endl; // testing - this works; it's getting the strings from the file
-                pair.second.at(list_num).push_back(in_string); // this isn't working
-            }
-        }
+    if(!read_from_file(Libraries, "Walnut Creek", "books.txt", 0))
+        return 1;
+    if(!read_from_file(Libraries, "Pleasant Hill", "books.txt", 0))
+        return 1;
+    if(!read_from_file(Libraries, "Concord", "consumables.txt", 1))
+        return 1;
+    if(!read_from_file(Libraries, "Walnut Creek", "consumables.txt", 1))
+        return 1;
+    if(!read_from_file(Libraries, "Pleasant Hill", "consumables.txt", 1))
+        return 1;
+    if(!read_from_file(Libraries, "Concord", "consumables.txt", 2))
+        return 1;
+    if(!read_from_file(Libraries, "Walnut Creek", "consumables.txt", 2))
+        return 1;
+    if(!read_from_file(Libraries, "Pleasant Hill", "consumables.txt", 2))
+        return 1;
 
-        /* TESTING
-        for (auto pair : Libraries) {
-            inFile.seekg(0); // go to the beginning for the next library
-            while (!inFile.eof()){ 
-                getline(inFile, in_string);
-                test.at(list_num).push_back(in_string);
-            }
-        }
-        cout << "size of list: " << test.at(list_num).size() << " last item in test: " << test.at(list_num).back() << endl;
-         END TESTING - this works
-
-        inFile.close(); // close the file
-        ++list_num;
-    }
-
-    Libraries["Concord"].at(0).push_back("test1"); // testing - this works
-    Libraries["Concord"].at(0).push_back("test2"); // testing - this works
-    for (const string book : Libraries["Concord"].at(0)) // testing - this works
-            cout << book << endl;
-
-    */
+    
     // Begin a time-based simulation of a normal time period of the library activities
     // For 25 time intervals
     // Iterate through each library in the map
-    //weekly_changes(Libraries, "Concord", 1, 1, 1, 1); // testing
-    //display_books(Libraries, "Concord"); // testing
     change_books(Libraries, "Concord", 1.0, 1.0, 1.0);
     //display_books(Libraries, "Concord"); // testing
         // Wait or pause briefly to simulate the passage of time between intervals
@@ -174,18 +124,51 @@ void change_books(map<string, array<list<string>,3>>& m, string lib_name, double
     }
 }
 
-/* for other change functions:
-    params: double donate_rate_modifier, double consumed_rate_modifier, double joining_modifier, double leaving_modifier) {
-    
+void change_consumables(map<string, array<list<string>,3>>& m, string lib_name, double consumed_rate_modifier) {
     // 3. consumables get used up
+    int rand_index;
     int num_consumables = static_cast<int>(round(Consumed_Base_Rate * consumed_rate_modifier));
+    if(num_consumables > m[lib_name].at(1).size())
+            num_consumables = m[lib_name].at(1).size(); // make sure we don't try to remove more books than we have
+    for (int i = 0; !m.empty() && i < num_consumables && num_consumables > 0; ++i) {
+    // each iteration of this loop removes one random book
+        rand_index = rand() % num_consumables; // will be index number of book that gets checked out
+        list<string>::iterator li = m[lib_name].at(1).begin();
+        for(int j = 0; j < rand_index; ++j)
+        // traverse the list to get to the book at index rand_index
+            advance(li, 1);
+        cout << "Used up " << *li << endl;
+        m[lib_name].at(1).erase(li); // remove the book at index rand_index
+    }
     // 4. more consumables get bought
     num_consumables = ReplaceConsumables_Rate; // I haven't included changing this - they have a limited budget
+}
+
+void change_people(map<string, array<list<string>,3>>& m, string lib_name, double joining_modifier, double leaving_modifier) {
     // 5. new people get library cards
-    int num_people = static_cast<int>(round(Consumed_Base_Rate * consumed_rate_modifier))
+    int num_people = static_cast<int>(round(People_Base_Rate * joining_modifier));
     // 6. people move away and are removed from the People list
-    // Print the changes for this interval
- */
+}
+
+bool read_from_file(map<string, array<list<string>,3>>& m, string lib_name, string filename, int list_index) {
+// reads from the given file into the list (0 books, 1 consumables, 2 people) for the given Library
+    ifstream inFile;
+    string in_string;
+    // Read data from files and populate map
+    // array<list<string>, 3> test; // TESTING
+    inFile.open(filename);
+    // check for file error
+    if(!inFile.is_open()) {
+        cout << "Error: file \"" << filename << "\" not found.";
+        return false;
+    }
+    while (!inFile.eof()){ 
+        getline(inFile, in_string);
+        m[lib_name].at(list_index).push_back(in_string); 
+    }
+    inFile.close();
+    return true;
+}
 
 void display_books(map<string, array<list<string>,3>>& m, string lib_name) {
 // display all the books in the given library
