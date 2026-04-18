@@ -56,14 +56,16 @@ int main() {
         }
         // go through the file and add all the items to each library's list for that type of item
         for (auto pair : Libraries) {
+            inFile.seekg(0); // go  to the beginning for the next library
             while (!inFile.eof()){ 
                 getline(inFile, in_string);
-                pair.second.at(list_num).push_back(in_string);
+                pair.second.at(list_num).push_back(in_string); // this isn't working
             }
-        }    
+        }
         inFile.close(); // close the file
         ++list_num;
     }
+    //Libraries["Concord"].at(0).push_back("test"); // testing - this works
 
     // Read data from file and populate map
         // For each library, populate its Consumables and People lists by randomly selecting names from files.
@@ -104,7 +106,7 @@ void weekly_changes(map<string, array<list<string>,3>>& m, string lib_name, doub
         // traverse the list to get to the book at index rand_index
             advance(li, 1);
         cout << "Checked out book " << *li << endl;
-        m[lib_name].at(1).erase(li); // remove the book at index rand_index
+        m[lib_name].at(0).erase(li); // remove the book at index rand_index
     }
     // 2. books get returned or donated (this version will not keep track of which specific books 
     //    were checked out; it will just randomly add books from the file)
@@ -119,10 +121,11 @@ void weekly_changes(map<string, array<list<string>,3>>& m, string lib_name, doub
 void display_books(const map<string, array<list<string>,3>>& m, string lib_name) {
 // display all the books in the given library
     int i = 1;
-    for(string book : m[lib_name].at(0)) {
+    for (auto pair : m) {
+        for (auto book : pair.second.at(0))
         cout << book << ", ";
         if(i % 10 == 0) // show 10 book names per line
             cout << endl;
         ++i;
-    }
+        }
 }
