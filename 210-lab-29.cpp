@@ -6,6 +6,7 @@
 #include <list> // for storing each library's books, consumables, and lists
 #include <array> // for storing each library's three lists
 #include <cstdlib> // for random numbers
+#include <cmath> // for round()
 
 using namespace std;
 
@@ -22,7 +23,7 @@ void weekly_changes(map<string, array<list<string>,3>>&, string, double, double,
 // ---
 // Define a function to display one library's books
     // Parameters: map&, library
-void display_books(map<string, array<list<string>,3>>&, string);
+void display_books(const map<string, array<list<string>,3>>&, string);
 // Define a function to display one library's consumables
     // Parameters: map&, library
 
@@ -36,9 +37,9 @@ int main() {
     // Initialize a map to store the information about each of three libraries
     map<string, array<list<string>, 3>> Libraries;
     // the first list is books, the second list is consumables, and the third list is people
-    Libraries["Concord"] = array<list<string>, 3>;
-    Libraries.emplace("Pleasant Hill");
-    Libraries.emplace("Walnut Creek");
+    Libraries["Concord"] = {{{},{},{}}};
+    Libraries["Walnut Creek"] = {{{},{},{}}};
+    Libraries["Pleasant Hill"] = {{{},{},{}}};
 
     // the starting lists for all three libraries will be the same.
     // I used ChatGPT to generate the lists in the three text files
@@ -74,8 +75,8 @@ int main() {
     // Begin a time-based simulation of a normal time period of the library activities
     // For 25 time intervals
     // Iterate through each library in the map
-    weekly_changes(Libraries, "San Ramon", 1, 1, 1, 1); // testing
-    display_books(Libraries, "San Ramon");
+    //weekly_changes(Libraries, "Concord", 1, 1, 1, 1); // testing
+    display_books(Libraries, "Concord"); // testing
         // Wait or pause briefly to simulate the passage of time between intervals
 
     // Simulate what happens after the rate of new people joining increases
@@ -90,13 +91,14 @@ void weekly_changes(map<string, array<list<string>,3>>& m, string lib_name, doub
 // simulate the changes to books, consumables, and people for the given library in one week
     int rand_index; // will store random numbers
     // 1. books get checked out
-    int num_books = Checkout_Base_Rate * checkout_rate_modifier;
-
-    for (int i = 0; !m.empty() && i < num_books; ++i) {
-    // each iteration of this loop removes one random book
-        if(num_books > m[lib_name].at(0).size())
+    int num_books = static_cast<int>(round(Checkout_Base_Rate * checkout_rate_modifier));
+    if(num_books > m[lib_name].at(0).size())
             num_books = m[lib_name].at(0).size(); // make sure we don't try to remove more books than we have
-        rand_index = rand() % num_books; // will be index number of book that gets checked out
+    for (int i = 0; !m.empty() && i < num_books && num_books > 0; ++i) {
+    // each iteration of this loop removes one random book
+        cout << num_books << endl; // testing
+            rand_index = rand() % num_books; // will be index number of book that gets checked out
+        cout << rand_index << endl; // testing
         list<string>::iterator li = m[lib_name].at(0).begin();
         for(int j = 0; j < rand_index; ++j)
         // traverse the list to get to the book at index rand_index
@@ -114,7 +116,7 @@ void weekly_changes(map<string, array<list<string>,3>>& m, string lib_name, doub
     // Print the changes for this interval
 }
 
-void display_books(map<string, array<list<string>,3>>& m, string lib_name) {
+void display_books(const map<string, array<list<string>,3>>& m, string lib_name) {
 // display all the books in the given library
     int i = 1;
     for(string book : m[lib_name].at(0)) {
