@@ -1,0 +1,2 @@
+Function: weekly_changes(map, key, books checked out modifier, books returned modifier, books donated modifier, consumables used modifier, people joining modifier, people leaving modifier)
+To test it, I will need to create the map and populate it with data from the files, and use dummy values of 1 for the modifiers. I will create another function to display the contents of the lists for testing purposes to make sure the weekly_changes function is really doing what it says it is.
