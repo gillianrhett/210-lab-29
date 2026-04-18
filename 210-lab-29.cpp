@@ -36,25 +36,33 @@ int main() {
     // Initialize a map to store the information about each of three libraries
     map<string, array<list<string>, 3>> Libraries;
     // the first list is books, the second list is consumables, and the third list is people
-    Libraries.emplace("Concord");
+    Libraries["Concord"] = array<list<string>, 3>;
     Libraries.emplace("Pleasant Hill");
     Libraries.emplace("Walnut Creek");
 
     // the starting lists for all three libraries will be the same.
     // I used ChatGPT to generate the lists in the three text files
     ifstream inFile;
-    string book;
-    inFile.open("books.txt");
-    // TODO check for file error
-    // go through the file and add all the book titles to each library's books list
-    for(auto pair : Libraries) {
-        while (!inFile.eof()){ 
-            getline(inFile, book);
-            pair.second.at(1).push_back(book);
+    array<string, 3> files = {"books.txt", "consumables.txt", "people.txt"};
+    int list_num = 0;
+    string in_string;
+    for (string filename : files) {
+        inFile.open(filename);
+        // check for file error
+        if(!inFile.is_open()) {
+            cout << "Error: file \"" << filename << "\" not found.";
+            return 1;
         }
-    }    
-    inFile.close(); // close the file
-
+        // go through the file and add all the items to each library's list for that type of item
+        for (auto pair : Libraries) {
+            while (!inFile.eof()){ 
+                getline(inFile, in_string);
+                pair.second.at(list_num).push_back(in_string);
+            }
+        }    
+        inFile.close(); // close the file
+        ++list_num;
+    }
 
     // Read data from file and populate map
         // For each library, populate its Consumables and People lists by randomly selecting names from files.
@@ -86,10 +94,10 @@ void weekly_changes(map<string, array<list<string>,3>>& m, string lib_name, doub
 
     for (int i = 0; !m.empty() && i < num_books; ++i) {
     // each iteration of this loop removes one random book
-        if(num_books > m[lib_name].at(1).size())
-            num_books = m[lib_name].at(1).size(); // make sure we don't try to remove more books than we have
+        if(num_books > m[lib_name].at(0).size())
+            num_books = m[lib_name].at(0).size(); // make sure we don't try to remove more books than we have
         rand_index = rand() % num_books; // will be index number of book that gets checked out
-        list<string>::iterator li = m[lib_name].at(1).begin();
+        list<string>::iterator li = m[lib_name].at(0).begin();
         for(int j = 0; j < rand_index; ++j)
         // traverse the list to get to the book at index rand_index
             advance(li, 1);
@@ -109,7 +117,7 @@ void weekly_changes(map<string, array<list<string>,3>>& m, string lib_name, doub
 void display_books(map<string, array<list<string>,3>>& m, string lib_name) {
 // display all the books in the given library
     int i = 1;
-    for(string book : m[lib_name].at(1)) {
+    for(string book : m[lib_name].at(0)) {
         cout << book << ", ";
         if(i % 10 == 0) // show 10 book names per line
             cout << endl;
