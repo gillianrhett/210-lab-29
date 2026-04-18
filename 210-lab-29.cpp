@@ -50,6 +50,7 @@ int main() {
     int list_num = 0;
     string in_string;
     // Read data from files and populate map
+    array<list<string>, 3> test;
     for (string filename : files) {
         inFile.open(filename);
         // check for file error
@@ -58,14 +59,28 @@ int main() {
             return 1;
         }
         // go through the file and add all the items to each library's list for that type of item
-        for (auto [key, arr] : Libraries) {
+        for (auto pair : Libraries) {
             inFile.seekg(0); // go to the beginning for the next library
             while (!inFile.eof()){ 
                 getline(inFile, in_string);
                 //cout << in_string << endl; // testing - this works; it's getting the strings from the file
-                arr.at(list_num).push_back(in_string); // this isn't working
+                pair.second.at(list_num).push_back(in_string); // this isn't working
             }
         }
+        for (string book : Libraries["Concord"].at(0)) // testing
+            cout << book << endl;
+        /* TESTING
+        for (auto pair : Libraries) {
+            inFile.seekg(0); // go to the beginning for the next library
+            while (!inFile.eof()){ 
+                getline(inFile, in_string);
+                test.at(list_num).push_back(in_string);
+            }
+        }
+        cout << "size of list: " << test.at(list_num).size() << " last item in test: " << test.at(list_num).back() << endl;
+         END TESTING - this works
+         */
+
         inFile.close(); // close the file
         ++list_num;
     }
@@ -127,9 +142,9 @@ void display_books(const map<string, array<list<string>,3>>& m, string lib_name)
     int i = 1;
     for (auto pair : m) {
         for (auto book : pair.second.at(0))
-        cout << book << ", ";
+            cout << book << ", ";
         if(i % 10 == 0) // show 10 book names per line
             cout << endl;
         ++i;
-        }
+    }
 }
