@@ -33,6 +33,8 @@ void weekly_changes(map<string, array<list<string>,3>>&, string, double, double,
 int main() {
     srand(time(0));
     // Initialize a map to store the information about each of three libraries
+    map<string, array<list<string>, 3>> Libraries;
+    // the first list is books, the second list is consumables, and the third list is people
 
     // Open an external file to read the book titles into each library - all libraries start with one copy of every book
         // If file does not open, print an error and exit
@@ -58,13 +60,19 @@ int main() {
 }        
 // End of main function
 
-void weekly_changes(map<string, array<list<string>,3>>& m, string library_name, double checkout_rate_modifier, double return_rate_modifier, double donate_rate_modifier, double consumed_rate_modifier) {
+void weekly_changes(map<string, array<list<string>,3>>& m, string lib_name, double checkout_rate_modifier, double return_rate_modifier, double donate_rate_modifier, double consumed_rate_modifier) {
 // simulate the changes to books, consumables, and people for the given library in one week
     int r = 0; // will store random numbers
     // 1. books get checked out
     int num_books = Checkout_Base_Rate * checkout_rate_modifier;
-    for (int i = 0; !m.empty() && i < num_books; ++i) {
+    if(num_books > m[lib_name].at(1).size())
+        num_books = m[lib_name].at(1).size(); // make sure we don't try to remove more books than we have
 
+    for (int i = 0; !m.empty() && i < num_books; ++i) {
+        r = rand() % num_books + 1; // will be index number of book that gets checked out
+        
+        for(int j = 0; j < r; ++j) // traverse the books list
+            m[lib_name].at(1);
     }
     // 2. books get returned or donated (this version will not keep track of which specific books 
     //    were checked out; it will just randomly add books from the file)
