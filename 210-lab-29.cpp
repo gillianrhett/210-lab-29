@@ -62,17 +62,20 @@ int main() {
 
 void weekly_changes(map<string, array<list<string>,3>>& m, string lib_name, double checkout_rate_modifier, double return_rate_modifier, double donate_rate_modifier, double consumed_rate_modifier) {
 // simulate the changes to books, consumables, and people for the given library in one week
-    int r = 0; // will store random numbers
+    int rand_index; // will store random numbers
     // 1. books get checked out
     int num_books = Checkout_Base_Rate * checkout_rate_modifier;
-    if(num_books > m[lib_name].at(1).size())
-        num_books = m[lib_name].at(1).size(); // make sure we don't try to remove more books than we have
 
     for (int i = 0; !m.empty() && i < num_books; ++i) {
-        r = rand() % num_books + 1; // will be index number of book that gets checked out
-        
-        for(int j = 0; j < r; ++j) // traverse the books list
-            m[lib_name].at(1);
+    // each iteration of this loop removes one random book
+        if(num_books > m[lib_name].at(1).size())
+            num_books = m[lib_name].at(1).size(); // make sure we don't try to remove more books than we have
+        rand_index = rand() % num_books; // will be index number of book that gets checked out
+        list<string>::iterator li = m[lib_name].at(1).begin();
+        for(int j = 0; j < rand_index; ++j)
+        // traverse the list to get to the book at index rand_index
+            advance(li, 1);
+        m[lib_name].at(1).erase(li); // remove the book at index rand_index
     }
     // 2. books get returned or donated (this version will not keep track of which specific books 
     //    were checked out; it will just randomly add books from the file)
