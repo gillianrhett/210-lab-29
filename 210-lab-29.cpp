@@ -55,11 +55,12 @@ int main() {
             return 1;
         }
         // go through the file and add all the items to each library's list for that type of item
-        for (auto pair : Libraries) {
-            inFile.seekg(0); // go  to the beginning for the next library
+        for (auto [key, arr] : Libraries) {
+            inFile.seekg(0); // go to the beginning for the next library
             while (!inFile.eof()){ 
                 getline(inFile, in_string);
-                pair.second.at(list_num).push_back(in_string); // this isn't working
+                //cout << in_string << endl; // testing - this works; it's getting the strings from the file
+                arr.at(list_num).push_back(in_string); // this isn't working
             }
         }
         inFile.close(); // close the file
