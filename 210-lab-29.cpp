@@ -13,7 +13,7 @@ using namespace std;
 // Constants:
 const double Checkout_Base_Rate = 15.0, Return_Rate = 15.0, Donate_Rate = 1.0, Consumed_Base_Rate = 5.0, ReplaceConsumables_Rate = 5.0, People_Base_rate = 10.0;
 
-// Define a function to simulate one week for one library
+// Define functionS to simulate one week for one library
     // Parameters: map&, library (key), checkout_rate_modifier, return_rate_modifier, donate_rate_modifier, consumed_rate_modifier
     // use the size of the People list as a factor in these calculations
     // return value is void, it just adds and removes items from this library's lists
@@ -25,7 +25,7 @@ void change_books(map<string, array<list<string>,3>>&, string, double, double);
 // ---
 // Define a function to display one library's books
     // Parameters: map&, library
-void display_books(const map<string, array<list<string>,3>>&, string);
+void display_books(map<string, array<list<string>,3>>&, string); // I forgot making the map const causes a problem
 // Define a function to display one library's consumables
     // Parameters: map&, library
 
@@ -50,7 +50,7 @@ int main() {
     int list_num = 0;
     string in_string;
     // Read data from files and populate map
-    array<list<string>, 3> test;
+    // array<list<string>, 3> test; // TESTING
     for (string filename : files) {
         inFile.open(filename);
         // check for file error
@@ -67,8 +67,7 @@ int main() {
                 pair.second.at(list_num).push_back(in_string); // this isn't working
             }
         }
-        for (string book : Libraries["Concord"].at(0)) // testing
-            cout << book << endl;
+
         /* TESTING
         for (auto pair : Libraries) {
             inFile.seekg(0); // go to the beginning for the next library
@@ -84,7 +83,12 @@ int main() {
         inFile.close(); // close the file
         ++list_num;
     }
-    //Libraries["Concord"].at(0).push_back("test"); // testing - this works
+    /*
+    Libraries["Concord"].at(0).push_back("test1"); // testing - this works
+    Libraries["Concord"].at(0).push_back("test2"); // testing - this works
+    for (const string book : Libraries["Concord"].at(0)) // testing - this works
+            cout << book << endl;
+    */
 
     // Begin a time-based simulation of a normal time period of the library activities
     // For 25 time intervals
@@ -137,12 +141,11 @@ void change_books(map<string, array<list<string>,3>>& m, string lib_name, double
     // Print the changes for this interval
  */
 
-void display_books(const map<string, array<list<string>,3>>& m, string lib_name) {
+void display_books(map<string, array<list<string>,3>>& m, string lib_name) {
 // display all the books in the given library
     int i = 1;
-    for (auto pair : m) {
-        for (auto book : pair.second.at(0))
-            cout << book << ", ";
+    for (string book : m[lib_name].at(0)) {
+        cout << book << ", ";
         if(i % 10 == 0) // show 10 book names per line
             cout << endl;
         ++i;
