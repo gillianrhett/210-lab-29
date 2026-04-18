@@ -10,14 +10,16 @@
 
 using namespace std;
 
-// Constants: Checkout_Base_Rate, Noreturn_Rate, Donate_Rate, Consumed_Base_Rate, ReplaceConsumables_Rate
-const double Checkout_Base_Rate = 15.0, Return_Rate = 15.0, Donate_Rate = 1.0, Consumed_Base_Rate = 5.0, ReplaceConsumables_Rate = 5.0;
+// Constants:
+const double Checkout_Base_Rate = 15.0, Return_Rate = 15.0, Donate_Rate = 1.0, Consumed_Base_Rate = 5.0, ReplaceConsumables_Rate = 5.0, People_Base_rate = 10.0;
 
 // Define a function to simulate one week for one library
     // Parameters: map&, library (key), checkout_rate_modifier, return_rate_modifier, donate_rate_modifier, consumed_rate_modifier
     // use the size of the People list as a factor in these calculations
     // return value is void, it just adds and removes items from this library's lists
-void weekly_changes(map<string, array<list<string>,3>>&, string, double, double, double, double);
+//void weekly_changes(map<string, array<list<string>,3>>&, string, double, double, double, double, double, double);
+// this is getting unwieldy; I'm going to split it up into more functions
+void change_books(map<string, array<list<string>,3>>&, string, double, double);
 
 // I might only need these functions for testing purposes
 // ---
@@ -47,6 +49,7 @@ int main() {
     array<string, 3> files = {"books.txt", "consumables.txt", "people.txt"};
     int list_num = 0;
     string in_string;
+    // Read data from files and populate map
     for (string filename : files) {
         inFile.open(filename);
         // check for file error
@@ -68,13 +71,6 @@ int main() {
     }
     //Libraries["Concord"].at(0).push_back("test"); // testing - this works
 
-    // Read data from file and populate map
-        // For each library, populate its Consumables and People lists by randomly selecting names from files.
-        // opening file error checking like above
-        // For demo purposes, libraries will start with different numbers of consumables and people
-
-    // Close the file
-
     // Begin a time-based simulation of a normal time period of the library activities
     // For 25 time intervals
     // Iterate through each library in the map
@@ -90,7 +86,7 @@ int main() {
 }        
 // End of main function
 
-void weekly_changes(map<string, array<list<string>,3>>& m, string lib_name, double checkout_rate_modifier, double return_rate_modifier, double donate_rate_modifier, double consumed_rate_modifier) {
+void change_books(map<string, array<list<string>,3>>& m, string lib_name, double checkout_rate_modifier, double return_rate_modifier) {
 // simulate the changes to books, consumables, and people for the given library in one week
     int rand_index; // will store random numbers
     // 1. books get checked out
@@ -109,15 +105,22 @@ void weekly_changes(map<string, array<list<string>,3>>& m, string lib_name, doub
         cout << "Checked out book " << *li << endl;
         m[lib_name].at(0).erase(li); // remove the book at index rand_index
     }
+}
+
+/* for other change functions:
+    params: double donate_rate_modifier, double consumed_rate_modifier, double joining_modifier, double leaving_modifier) {
     // 2. books get returned or donated (this version will not keep track of which specific books 
     //    were checked out; it will just randomly add books from the file)
     num_books += (Return_Rate * return_rate_modifier) + (Donate_Rate * donate_rate_modifier);
     // 3. consumables get used up
+    int num_consumables = static_cast<int>(round(Consumed_Base_Rate * consumed_rate_modifier));
     // 4. more consumables get bought
+    num_consumables = ReplaceConsumables_Rate; // I haven't included changing this - they have a limited budget
     // 5. new people get library cards
+    int num_people = static_cast<int>(round(Consumed_Base_Rate * consumed_rate_modifier))
     // 6. people move away and are removed from the People list
     // Print the changes for this interval
-}
+ */
 
 void display_books(const map<string, array<list<string>,3>>& m, string lib_name) {
 // display all the books in the given library
