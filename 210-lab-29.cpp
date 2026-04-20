@@ -7,6 +7,9 @@
 #include <array> // for storing each library's three lists
 #include <cstdlib> // for random numbers
 #include <cmath> // for round()
+#include <thread> // for sleep x milliseconds
+#include <chrono> // for sleep x milliseconds
+#include <vector> // for storing all possible titles, consumables, and people
 
 using namespace std;
 
@@ -22,11 +25,12 @@ const double Checkout_Base_Rate = 15.0, Return_Rate = 15.0, Donate_Rate = 1.0, C
     // return value is void, it just adds and removes items from this library's lists
 //void weekly_changes(map<string, array<list<string>,3>>&, string, double, double, double, double, double, double);
 // this is getting unwieldy; I'm going to split it up into more functions
-void change_books(map<string, array<list<string>,3>>&, string, double, double, double);
-void change_consumables(map<string, array<list<string>,3>>&, string, double);
-void change_people(map<string, array<list<string>,3>>&, string, double, double);
+void change_books(map<string, array<list<string>,3>>&, string, double, double, double, vector<string>);
+void change_consumables(map<string, array<list<string>,3>>&, string, double, vector<string>);
+void change_people(map<string, array<list<string>,3>>&, string, double, double, vector<string>);
 
-bool read_from_file(map<string, array<list<string>,3>>&, string, string, int);
+bool read_from_file(vector<string>&, string);
+void initialize_list(map<string, array<list<string>,3>>&, string, vector<string>, int);
 // I might only need these functions for testing purposes
 // ---
 // Define a function to display one library's books
@@ -49,48 +53,52 @@ int main() {
     Libraries["Walnut Creek"] = {{{},{},{}}};
     Libraries["Pleasant Hill"] = {{{},{},{}}};
 
-    // the starting lists for all three libraries will be the same.
-    // I used ChatGPT to generate the lists in the three text files
-    if(!read_from_file(Libraries, "Concord", "books.txt", BOOKS))
+        // I used ChatGPT to generate the lists in the three text files
+    // save the contents of the files in vectors to use them to add new items to the lists
+    vector<string> all_books;
+    vector<string> all_consumables;
+    vector<string> all_people;
+    if(!read_from_file(books_list, "books.txt"))
         return 1;
-    if(!read_from_file(Libraries, "Walnut Creek", "books.txt", BOOKS))
+    if(!read_from_file(consumables_list, "consumables.txt"))
         return 1;
-    if(!read_from_file(Libraries, "Pleasant Hill", "books.txt", BOOKS))
-        return 1;
-    if(!read_from_file(Libraries, "Concord", "consumables.txt", CONSUMABLES))
-        return 1;
-    if(!read_from_file(Libraries, "Walnut Creek", "consumables.txt", CONSUMABLES))
-        return 1;
-    if(!read_from_file(Libraries, "Pleasant Hill", "consumables.txt", CONSUMABLES))
-        return 1;
-    if(!read_from_file(Libraries, "Concord", "people.txt", PEOPLE))
-        return 1;
-    if(!read_from_file(Libraries, "Walnut Creek", "people.txt", PEOPLE))
-        return 1;
-    if(!read_from_file(Libraries, "Pleasant Hill", "people.txt", PEOPLE))
+    if(!read_from_file(people_list, "people.txt"))
         return 1;
 
+    // the starting lists for the three libraries will be the same
+    initialize_list(Libraries, "Concord", books_list, BOOKS);
+    initialize_list(Libraries, "Walnut Creek", books_list, BOOKS);
+    initialize_list(Libraries, "Pleasant Hill", books_list, BOOKS);
+    initialize_list(Libraries, "Concord", consumables_list, CONSUMABLES);
+    initialize_list(Libraries, "Walnut Creek", consumables_list, CONSUMABLES);
+    initialize_list(Libraries, "Pleasant Hill", consumables_list, CONSUMABLES);
+    initialize_list(Libraries, "Concord", people_list, PEOPLE);
+    initialize_list(Libraries, "Walnut Creek", people_list, PEOPLE);
+    initialize_list(Libraries, "Pleasant Hill", people_list, PEOPLE);
     
     // Begin a time-based simulation of a normal time period of the library activities
     // For 25 time intervals
     // Iterate through each library in the map
-    for (auto pair : Libraries) {
-        change_books(Libraries, pair.first, 1.0, 1.0, 1.0);
-        change_consumables(Libraries, pair.first, 1.0);
-        change_people(Libraries, pair.first, 1.0, 1.0);
-    }
-    //display_books(Libraries, "Concord"); // testing
+    for (int i = 1; i < 26; ++i) {
+        for (auto pair : Libraries) {
+            change_books(Libraries, pair.first, 1.0, 1.0, 1.0, books_vect);
+            change_consumables(Libraries, pair.first, 1.0);
+            change_people(Libraries, pair.first, 1.0, 1.0);
+        }
         // Wait or pause briefly to simulate the passage of time between intervals
-
+        this_thread::sleep_for(chrono::milliseconds(250));
+    }
     // Simulate what happens after the rate of new people joining increases
     //    this will affect the checkout rate and rate of using up consumables
+
+
     // Simulate what happens when people become more likely to return their books and to donate books
 
     return 0;
 }        
 // End of main function
 
-void change_books(map<string, array<list<string>,3>>& m, string lib_name, double checkout_rate_modifier, double return_rate_modifier, double donate_rate_modifier) {
+void change_books(map<string, array<list<string>,3>>& m, string lib_name, double checkout_rate_modifier, double return_rate_modifier, double donate_rate_modifier, list<string> lst) {
 // simulate the changes to books, consumables, and people for the given library in one week
     int rand_index; // will store random numbers
     // 1. books get checked out
@@ -112,7 +120,7 @@ void change_books(map<string, array<list<string>,3>>& m, string lib_name, double
     //    were checked out; it will just randomly add books from the file)
     // books returned:
     num_books = (Return_Rate * return_rate_modifier);
-    string book_title = "test R"; // TODO I'll need to store the book names in the program so I can grab random new ones
+    string book_title;
     for (int i = 0; i < num_books && num_books > 0; ++i) {
     // each iteration of this loop adds one random book
         rand_index = rand() % m[lib_name].at(BOOKS).size(); // will be index number of book that gets checked out
@@ -122,7 +130,7 @@ void change_books(map<string, array<list<string>,3>>& m, string lib_name, double
     }
     // books donated:
     num_books = (Donate_Rate * donate_rate_modifier);
-    book_title = "test D"; // TODO I'll need to store the book names in the program so I can grab random new ones
+    book_title = lst.at(rand() % lst.size());
     for (int i = 0; i < num_books && num_books > 0; ++i) {
     // each iteration of this loop adds one random book
         list<string>::iterator li = m[lib_name].at(BOOKS).begin();
@@ -188,12 +196,11 @@ void change_people(map<string, array<list<string>,3>>& m, string lib_name, doubl
     }
 }
 
-bool read_from_file(map<string, array<list<string>,3>>& m, string lib_name, string filename, int list_index) {
-// reads from the given file into the list (0 books, 1 consumables, 2 people) for the given Library
+bool read_from_file (list<string>& lst, string filename) {
+// reads from the given file into a list
     ifstream inFile;
     string in_string;
     // Read data from files and populate map
-    // array<list<string>, 3> test; // TESTING
     inFile.open(filename);
     // check for file error
     if(!inFile.is_open()) {
@@ -202,10 +209,19 @@ bool read_from_file(map<string, array<list<string>,3>>& m, string lib_name, stri
     }
     while (!inFile.eof()){ 
         getline(inFile, in_string);
-        m[lib_name].at(list_index).push_back(in_string); 
+        lst.push_back(in_string);
     }
     inFile.close();
     return true;
+}
+
+void initialize_list(map<string, array<list<string>,3>>& m, string lib_name, list<string> lst, int which_list) {
+// copies from the given vector into the list (0 books, 1 consumables, 2 people) for the given Library
+    cout << lst.size() << endl;    
+    for (string s : lst) {
+        m[lib_name].at(which_list).push_back(s);
+        cout << "copied " << s << endl;
+    }
 }
 
 void display_books(map<string, array<list<string>,3>>& m, string lib_name) {
