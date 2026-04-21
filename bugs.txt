@@ -1,0 +1,19 @@
+1. Not exactly a bug but I found I was adding a lot of parameters to the weekly_change function, so I divided it up into three separate functions for the books, consumables, and people.
+
+2. I tried to make a range-based for loop to read the data from the files into the map items' lists but it didn't work. To finish my code on Sunday (since I hadn't seen the reply to my question yet and I couldn't access Canvas on Sunday), I just did them separately. I ended up needing to change it anyway because I hadn't considered that I would need to pick random names from the data sets, so rather than keeping the fstream object, I stored the names in vectors (see below).
+
+3. In the change_books function (the first of the three I worked on; the other two worked in similar ways), I had an out-of-range error with the for loop to remove a random number of books (the range of random values was based on a base rate constant and a rate modifier parameter). I added code in the condition of the for loop to prevent it from trying to remove more books than the list has, or trying to remove a book at an out of range index.
+
+4. For getting the data from the text files into the program in order to choose random items to add new ones, I started with a list but then I realized I'd forgotten lists don't support random access so I changed it to vectors.
+
+5. I made a silly mistake with the vectors above: I forgot to pass-by-reference so it wasn't adding to the actual vectors. I fixed it by adding the $s.
+
+6. I had copy-pasted the instructions that call the initialize_list function for the three different libraries and three lists per library, and I forgot to change the int argument to 1 and 2, so it was just putting all the data into the books lists. I fixed it by correcting the arguments when I called the function.
+
+7. To make it easier to keep that straight, I made an enum BOOKS = 0, CONSUMABLES = 1, and PEOPLE = 2 because those are the lists' index numbers in the array.
+
+8. I had some difficulty getting the name of a book that gets removed so I can display the name. I fixed it by creating an iterator for the list, traversing the list and incrementing the iterator until I got to the book to remove, then accessing the name with *iterator.
+
+9. I realized I made a mistake with the part where it randomly selects names from the original data set (copied from the text file into a vector), where I had the upper bound for the random number be the number of books to add, limiting the random names to just the beginning of the data set. I fixed it by changing it from rand() % num_books to rand() % v.size(), the size of the vector storing all the possible names.
+
+10. I had some debugging to do when I copy-pasted the code from change_books into change_consumables and change_people. For the consumables, I had decided I didn't want to have a buy rate modifier, just a constant number of items bought each week (just to make it a bit different from the books). For people, I just had people leaving and people getting new library cards, whereas for books I had books getting checked out, books getting returned, and new books getting donated. So I had to change those two functions to make them different from the books function.
